@@ -1,16 +1,21 @@
 import React from "react";
 
-const Header = ({ darkMode, toggleDarkMode }) => {
+const Header = ({ darkMode, toggleDarkMode, onLogout }) => {
   return (
-    <div className="header">
-      <div className="flex items-center">
-        <h1 className="text-2xl font-bold gradient-text">EQ AI</h1>
+    <div className="header-chatgpt">
+      <div className="header-left">
+        <h1 className="header-title">EQ AI</h1>
+        {/* Removed the dropdown triangle */}
       </div>
-      <div className="flex items-center space-x-4">
-        <button onClick={toggleDarkMode} className="btn btn-secondary">
-          {darkMode ? '☀️ Light' : '🌙 Dark'}
-        </button>
-        <button className="btn btn-primary">+ New Chat</button>
+      <div className="header-right">
+        <div className="header-actions">
+          <button onClick={toggleDarkMode} className="header-btn">
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+          <button onClick={onLogout} className="header-btn logout-btn">
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );

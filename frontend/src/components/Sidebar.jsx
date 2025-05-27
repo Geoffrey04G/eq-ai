@@ -1,26 +1,41 @@
 import React from "react";
+import useStore from "../store/useStore";
 
-const Sidebar = ({ darkMode }) => {
-  const chatHistory = [
-    { id: 1, title: "Getting Started", active: true },
-    { id: 2, title: "Project Discussion", active: false },
-    { id: 3, title: "Code Review", active: false },
-  ];
+const Sidebar = ({ darkMode, onNewChat }) => {
+  const { chatHistory } = useStore();
+
+  const handleNewChat = () => {
+    if (onNewChat) {
+      onNewChat();
+    }
+  };
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
-        <button className="btn btn-primary w-full">+ New Chat</button>
+    <div className="sidebar-chatgpt">
+      {/* Sidebar Header */}
+      <div className="sidebar-header-chatgpt">
+        <button className="new-chat-btn" onClick={handleNewChat}>
+          <span className="plus-icon">📝</span>
+          New chat
+        </button>
       </div>
-      <div className="sidebar-content">
-        <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-          Recent Chats
-        </div>
-        {chatHistory.map((chat) => (
-          <div key={chat.id} className={`sidebar-item ${chat.active ? 'active' : ''}`}>
-            <div className="font-medium">{chat.title}</div>
+
+      {/* Chat History */}
+      <div className="chat-history">
+        {chatHistory && chatHistory.length > 0 ? (
+          <div className="history-section">
+            <div className="history-label">Recent Chats</div>
+            {chatHistory.map((chat, index) => (
+              <div key={index} className="history-item">
+                {chat.title || `Chat ${index + 1}`}
+              </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          <div className="empty-history">
+            <p className="empty-text">No conversations yet</p>
+          </div>
+        )}
       </div>
     </div>
   );

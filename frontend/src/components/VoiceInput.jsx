@@ -1,13 +1,12 @@
 import React, { useState } from "react";
+import { FiMic, FiSend, FiSliders } from "react-icons/fi";
 
-const VoiceInput = ({ onResult }) => {
-  const [message, setMessage] = useState("");
+const VoiceInput = ({ onResult, message, setMessage, onSend }) => {
   const [isRecording, setIsRecording] = useState(false);
 
   const handleSend = () => {
-    if (message.trim()) {
-      onResult(message);
-      setMessage("");
+    if (message && message.trim()) {
+      onSend();
     }
   };
 
@@ -19,31 +18,82 @@ const VoiceInput = ({ onResult }) => {
   };
 
   const toggleRecording = () => {
-    setIsRecording(!isRecording);
-    // Add voice recording logic here
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  };
+
+  const startRecording = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsRecording(true);
+      };
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setMessage(transcript);
+        setIsRecording(false);
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognition.start();
+    } else {
+      alert('Speech recognition is not supported in your browser');
+    }
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+    // The recognition will stop automatically
   };
 
   return (
-    <div className="flex items-end space-x-3">
-      <div className="flex-1 relative">
-        <textarea
-          value={message}
+    <div className="chat-input-wrapper">
+      <div className="chat-input-bar">
+        <button className="icon-button" title="Settings">
+          <FiSliders />
+        </button>
+        <input
+          type="text"
+          value={message || ""}
           onChange={(e) => setMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type your message here..."
-          className="chat-input"
-          rows="1"
-          style={{ minHeight: '48px', maxHeight: '200px' }}
+          placeholder="Ask anything"
+          className="chat-input-field"
         />
-        <button onClick={handleSend} disabled={!message.trim()} className="send-button">
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
-          </svg>
+        <button 
+          className={`icon-button ${isRecording ? 'recording' : ''}`} 
+          onClick={toggleRecording}
+          title={isRecording ? "Stop recording" : "Start voice input"}
+        >
+          <FiMic />
+        </button>
+        <button 
+          className="icon-button" 
+          onClick={handleSend} 
+          disabled={!message || !message.trim()}
+          title="Send message"
+        >
+          <FiSend />
         </button>
       </div>
-      <button onClick={toggleRecording} className={`voice-button ${isRecording ? 'recording' : ''}`}>
-        🎤
-      </button>
     </div>
   );
 };
